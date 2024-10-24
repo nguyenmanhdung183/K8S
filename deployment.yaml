@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cpp-server
+spec:
+  replicas: 2  # Số lượng bản sao của pod
+  selector:
+    matchLabels:
+      app: cpp-server
+  template:
+    metadata:
+      labels:
+        app: cpp-server
+    spec:
+      containers:
+      - name: cpp-server
+        image: cpp-server:latest  # Sử dụng tag image của bạn
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080  # Cổng mà server lắng nghe
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cpp-server-service
+spec:
+  type: NodePort  # Hoặc LoadBalancer nếu bạn cần
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30000  # Chọn một port cụ thể nếu bạn muốn
+  selector:
+    app: cpp-server
