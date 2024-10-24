@@ -10,3 +10,5 @@ spec:
       nodePort: 30001  # Bạn có thể chỉ định port để dễ dàng kết nối
   selector:
     app: server1
+
+    # kubectl apply -f service.yaml

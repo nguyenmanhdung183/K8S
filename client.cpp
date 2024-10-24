@@ -1,16 +1,15 @@
 #include <iostream>
 #include <cstring>
-#include <unistd.h>
-#include <arpa/inet.h>
 #include <thread>
-
-#define PORT 8082
+#include <winsock2.h> // Sử dụng winsock2.h thay vì unistd.h và arpa/inet.h
+//    g++ -o client client.cpp -lws2_32
+#define PORT 55634
 #define BUFFER_SIZE 1024
 
-void receiveMessages(int sock) {
+void receiveMessages(SOCKET sock) {
     char buffer[BUFFER_SIZE];
     while (true) {
-        int valread = read(sock, buffer, BUFFER_SIZE);
+        int valread = recv(sock, buffer, BUFFER_SIZE, 0); // Sử dụng recv thay cho read
         if (valread > 0) {
             std::cout << " " << std::string(buffer, valread) << std::endl;
         }
@@ -19,33 +18,38 @@ void receiveMessages(int sock) {
 }
 
 int main(int argc, char ** argv) {
+    // Khởi tạo Winsock
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        std::cerr << "Winsock initialization failed" << std::endl;
+        return -1;
+    }
+
     if (argc < 2) {
         std::cerr << "Usage: ./client <ID>" << std::endl;
         return -1;
     }
 
     int id = std::stoi(argv[1]); // Lấy ID từ tham số dòng lệnh
-    int sock = 0;
+    SOCKET sock = 0; // Sử dụng SOCKET thay vì int cho socket
     struct sockaddr_in serv_addr;
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(PORT);
-
-    // Chuyển đổi địa chỉ IPv4 từ văn bản sang nhị phân  192.168.49.2
-    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
-        std::cerr << "Invalid address" << std::endl;
-        return -1;
-    }
+    serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1"); // Sử dụng inet_addr thay cho inet_pton
 
     // Tạo socket
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) {
         std::cerr << "Socket creation error" << std::endl;
+        WSACleanup(); // Dọn dẹp Winsock
         return -1;
     }
 
     // Kết nối đến server
     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
         std::cerr << "Connection failed" << std::endl;
+        closesocket(sock); // Đóng socket
+        WSACleanup(); // Dọn dẹp Winsock
         return -1;
     }
 
@@ -67,6 +71,7 @@ int main(int argc, char ** argv) {
         send(sock, fullMessage.c_str(), fullMessage.size(), 0);
     }
 
-    close(sock);
+    closesocket(sock); // Đóng socket
+    WSACleanup(); // Dọn dẹp Winsock
     return 0;
 }
