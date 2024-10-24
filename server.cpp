@@ -30,7 +30,7 @@ void handleClient(int client_socket) {
         if (valread > 0) {
             std::string message(buffer, valread);
             std::cout << "Message from client " << client_socket << ": " << message << std::endl;
-            broadcastMessage("ServerUpdate: " + message, client_socket);
+            broadcastMessage(" " + message, client_socket);
             memset(buffer, 0, BUFFER_SIZE);
         } else {
             // Khi client ngắt kết nối

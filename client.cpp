@@ -4,7 +4,7 @@
 #include <arpa/inet.h>
 #include <thread>
 
-#define PORT 8080
+#define PORT 8082
 #define BUFFER_SIZE 1024
 
 void receiveMessages(int sock) {
@@ -12,7 +12,7 @@ void receiveMessages(int sock) {
     while (true) {
         int valread = read(sock, buffer, BUFFER_SIZE);
         if (valread > 0) {
-            std::cout << "Message from server: " << std::string(buffer, valread) << std::endl;
+            std::cout << " " << std::string(buffer, valread) << std::endl;
         }
         memset(buffer, 0, BUFFER_SIZE);
     }
@@ -31,7 +31,7 @@ int main(int argc, char ** argv) {
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(PORT);
 
-    // Chuyển đổi địa chỉ IPv4 từ văn bản sang nhị phân
+    // Chuyển đổi địa chỉ IPv4 từ văn bản sang nhị phân  192.168.49.2
     if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
         std::cerr << "Invalid address" << std::endl;
         return -1;
@@ -61,7 +61,7 @@ int main(int argc, char ** argv) {
     // Gửi tin nhắn
     while (true) {
         std::string message;
-        std::cout << "Enter message: ";
+        std::cout << "YOU : ";
         std::getline(std::cin, message);
         std::string fullMessage = "Client " + std::to_string(id) + ": " + message;
         send(sock, fullMessage.c_str(), fullMessage.size(), 0);

@@ -1,33 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cpp-server
+  name: server1
 spec:
-  replicas: 2  # Số lượng bản sao của pod
+  replicas: 3  # Number of instances
   selector:
     matchLabels:
-      app: cpp-server
+      app: server1
   template:
     metadata:
       labels:
-        app: cpp-server
+        app: server1
     spec:
       containers:
-      - name: cpp-server
-        image: cpp-server:latest  # Sử dụng tag image của bạn
-        imagePullPolicy: Never
+      - name: server1
+        image: manhdungnguyen/server1:latest  # Update with your image name
         ports:
-        - containerPort: 8080  # Cổng mà server lắng nghe
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: cpp-server-service
-spec:
-  type: NodePort  # Hoặc LoadBalancer nếu bạn cần
-  ports:
-    - port: 8080
-      targetPort: 8080
-      nodePort: 30000  # Chọn một port cụ thể nếu bạn muốn
-  selector:
-    app: cpp-server
+        - containerPort: 8080
